@@ -68,12 +68,12 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        /* Glassmorphism Card Style */
+        /* Fixed Mobile-Safe Clean Card Style (No backdrop-filter touch bug) */
         .glass-card {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #0f172a;
+            background: rgba(15, 23, 42, 0.96);
+            border: 2px solid #06b6d4;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
         }
 
         /* Custom Button Fixes for Mobile Touch */
@@ -82,6 +82,8 @@
             cursor: pointer;
             position: relative;
             z-index: 50;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+            user-select: none;
         }
     </style>
 </head>
@@ -121,17 +123,17 @@
             <div class="w-full text-left space-y-2">
                 <label class="text-xs font-bold text-cyan-300 uppercase tracking-wider px-1">Pilih Wilayah Jelajah (Level):</label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button type="button" onclick="selectLevel(1)" id="lvl-btn-1" class="touch-btn p-3 rounded-2xl bg-cyan-600/40 border-2 border-cyan-400 text-left transition-all">
-                        <div class="text-base mb-0.5">🏝️ Level 1</div>
+                    <button type="button" id="lvl-btn-1" class="touch-btn p-3 rounded-2xl bg-cyan-600 border-2 border-cyan-300 text-left transition-all ring-2 ring-cyan-400">
+                        <div class="text-base mb-0.5">🏝️️ Level 1</div>
                         <div class="text-xs font-bold text-white">Dermaga</div>
                         <div class="text-[10px] text-cyan-200 mt-0.5">Tambah & Kurang</div>
                     </button>
-                    <button type="button" onclick="selectLevel(2)" id="lvl-btn-2" class="touch-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all opacity-80">
+                    <button type="button" id="lvl-btn-2" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
                         <div class="text-base mb-0.5">🌊 Level 2</div>
                         <div class="text-xs font-bold text-white">Laut Lepas</div>
                         <div class="text-[10px] text-slate-400 mt-0.5">Kali & Bagi</div>
                     </button>
-                    <button type="button" onclick="selectLevel(3)" id="lvl-btn-3" class="touch-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all opacity-80">
+                    <button type="button" id="lvl-btn-3" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
                         <div class="text-base mb-0.5">⚡ Level 3</div>
                         <div class="text-xs font-bold text-white">Badai HOTS</div>
                         <div class="text-[10px] text-slate-400 mt-0.5">Soal Cerita Maritim</div>
@@ -141,7 +143,7 @@
 
             <!-- Tombol Berlayar Utama -->
             <div class="w-full pt-2">
-                <button type="button" id="btn-start-game" onclick="handleStartClick(event)" class="touch-btn w-full bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-lg tracking-wider active:opacity-80 transition-all uppercase">
+                <button type="button" id="btn-start-game" class="touch-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-xl tracking-wider active:scale-95 transition-transform uppercase border-2 border-amber-300">
                     🚀 BERLAYAR SEKARANG
                 </button>
             </div>
@@ -298,6 +300,31 @@
         var storyTag = document.getElementById('story-tag');
         var optionsContainer = document.getElementById('options-container');
 
+        /* ATTACH DIRECT LISTENERS ON DOM READY */
+        window.onload = function() {
+            var startBtn = document.getElementById('btn-start-game');
+            if (startBtn) {
+                // Handle both touch tap and mouse click directly
+                startBtn.addEventListener('click', function(e) {
+                    startGame();
+                });
+                startBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startGame();
+                }, { passive: false });
+            }
+
+            // Level selection bindings
+            for (var i = 1; i <= 3; i++) {
+                (function(lvl) {
+                    var lBtn = document.getElementById('lvl-btn-' + lvl);
+                    if (lBtn) {
+                        lBtn.onclick = function() { selectLevel(lvl); };
+                    }
+                })(i);
+            }
+        };
+
         /* SAFE AUDIO SYNTHESIZER (Web Audio API) */
         function playSound(type) {
             try {
@@ -321,8 +348,8 @@
 
                 if (type === 'correct') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
                     gain.gain.setValueAtTime(0.2, now);
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                     osc.start(now);
@@ -355,20 +382,14 @@
 
             for (var i = 1; i <= 3; i++) {
                 var btn = document.getElementById('lvl-btn-' + i);
-                if (i === lvl) {
-                    btn.className = "touch-btn p-3 rounded-2xl bg-cyan-600/40 border-2 border-cyan-400 text-left transition-all";
-                } else {
-                    btn.className = "touch-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all opacity-80";
+                if (btn) {
+                    if (i === lvl) {
+                        btn.className = "touch-btn p-3 rounded-2xl bg-cyan-600 border-2 border-cyan-300 text-left transition-all ring-2 ring-cyan-400";
+                    } else {
+                        btn.className = "touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80";
+                    }
                 }
             }
-        }
-
-        /* SAFE START TRIGGER FOR MOBILE TOUCH & CLICK */
-        function handleStartClick(e) {
-            if (e && e.preventDefault) {
-                e.preventDefault();
-            }
-            startGame();
         }
 
         /* START GAME LOGIC */
@@ -398,30 +419,4 @@
             timerText.textContent = "30s";
             timerBar.style.width = "100%";
             shipProgressBar.style.width = "0%";
-            comboBadge.classList.add('hidden');
-
-            generateQuestion();
-
-            // Start Timer Interval
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(function() {
-                timeLeft--;
-                timerText.textContent = timeLeft + "s";
-                timerBar.style.width = ((timeLeft / 30) * 100) + "%";
-
-                if (timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        /* GENERATE MATHEMATICAL QUESTIONS BY LEVEL */
-        function generateQuestion() {
-            storyTag.classList.add('hidden');
-            var num1, num2, questionStr = "", ans = 0;
-
-            if (selectedLevel === 1) {
-                // LEVEL 1: Penjumlahan & Pengurangan
-                var isAdd = Math.random() > 0.4;
-                if (isAdd) {
-                    num1 = Math.f
+            comboBadge.classList.add('hidden'
