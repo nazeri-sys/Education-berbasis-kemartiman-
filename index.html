@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -133,17 +133,17 @@
             <div class="mb-8 text-left">
                 <label class="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">Pilih Wilayah Jelajah (Level):</label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button onclick="selectLevel(1)" id="lvl-btn-1" class="level-select-btn p-3 rounded-2xl bg-cyan-600/30 border-2 border-cyan-400 text-left transition-all hover:bg-cyan-600/40">
+                    <button type="button" onclick="selectLevel(1)" id="lvl-btn-1" class="level-select-btn p-3 rounded-2xl bg-cyan-600/30 border-2 border-cyan-400 text-left transition-all hover:bg-cyan-600/40">
                         <div class="text-lg mb-1">🏝️ Level 1</div>
                         <div class="text-xs font-bold text-white">Dermaga Pertama</div>
                         <div class="text-[10px] text-cyan-200 mt-1">Penjumlahan & Pengurangan</div>
                     </button>
-                    <button onclick="selectLevel(2)" id="lvl-btn-2" class="level-select-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all hover:bg-slate-800">
+                    <button type="button" onclick="selectLevel(2)" id="lvl-btn-2" class="level-select-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all hover:bg-slate-800">
                         <div class="text-lg mb-1">🌊 Level 2</div>
                         <div class="text-xs font-bold text-white">Laut Lepas</div>
                         <div class="text-[10px] text-slate-400 mt-1">Perkalian & Pembagian</div>
                     </button>
-                    <button onclick="selectLevel(3)" id="lvl-btn-3" class="level-select-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all hover:bg-slate-800">
+                    <button type="button" onclick="selectLevel(3)" id="lvl-btn-3" class="level-select-btn p-3 rounded-2xl bg-slate-800/60 border-2 border-slate-700 text-left transition-all hover:bg-slate-800">
                         <div class="text-lg mb-1">⚡ Level 3</div>
                         <div class="text-xs font-bold text-white">Menembus Badai</div>
                         <div class="text-[10px] text-slate-400 mt-1">Soal Cerita & Adaptif (HOTS)</div>
@@ -151,7 +151,7 @@
                 </div>
             </div>
 
-            <button onclick="startGame()" class="w-full max-w-sm bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-extrabold py-4 px-8 rounded-2xl text-lg shadow-[0_6px_0_#b45309] active:shadow-none active:translate-y-[6px] transition-all tracking-wide">
+            <button type="button" onclick="startGame()" class="w-full max-w-sm bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-extrabold py-4 px-8 rounded-2xl text-lg shadow-[0_6px_0_#b45309] active:shadow-none active:translate-y-[6px] transition-all tracking-wide">
                 🚀 BERLAYAR SEKARANG
             </button>
         </div>
@@ -261,10 +261,10 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button onclick="resetGame()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold py-3.5 px-6 rounded-2xl text-sm shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] transition-all">
+                <button type="button" onclick="resetGame()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold py-3.5 px-6 rounded-2xl text-sm shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] transition-all">
                     🔄 Main Lagi
                 </button>
-                <button onclick="goToHome()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-2xl text-sm border border-slate-700 transition-all">
+                <button type="button" onclick="goToHome()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-2xl text-sm border border-slate-700 transition-all">
                     🏠 Menu Utama
                 </button>
             </div>
@@ -291,6 +291,24 @@
         let comboStreak = 0;
         let soundEnabled = true;
         let playerName = "Kapten Bahari";
+        let savedHighScore = 0;
+
+        // Safe LocalStorage wrapper to prevent crash on old browsers / incognito mode
+        function getSavedHighScore() {
+            try {
+                return localStorage.getItem('math_ocean_rush_high') || 0;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function setSavedHighScore(val) {
+            try {
+                localStorage.setItem('math_ocean_rush_high', val);
+            } catch (e) {
+                // Storage blocked, ignore error
+            }
+        }
 
         // Edu-Analytics Tracker
         let analytics = {
@@ -318,12 +336,33 @@
         const shipProgressMarker = document.getElementById('ship-progress-marker');
         const highScoreDisplay = document.getElementById('high-score-display');
 
-        // Synthesized Audio Web Audio API (No External Audio Files Needed)
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Safe Web Audio API Lazy Initialization (Works on older Chrome & Android WebView)
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                try {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) {
+                        audioCtx = new AudioContextClass();
+                    }
+                } catch (e) {
+                    audioCtx = null;
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                try {
+                    audioCtx.resume();
+                } catch (e) {}
+            }
+        }
 
         function playSound(type) {
             if (!soundEnabled) return;
             try {
+                initAudio();
+                if (!audioCtx) return;
+
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain);
@@ -339,32 +378,4 @@
                     osc.stop(audioCtx.currentTime + 0.3);
                 } else if (type === 'wrong') {
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(130, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.3);
-                } else if (type === 'click') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.05);
-                }
-            } catch (e) {
-                console.log("Audio play suppressed");
-            }
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-toggle-btn').textContent = soundEnabled ? '🔊' : '🔇';
-        }
-
-        function selectLevel(level) {
-            playSound('click');
-            selectedLevel = level;
-            
-            document.querySelectorAll('.level-select-
+                    osc.frequency.setValueAtTime(180, audioCtx.currentT
