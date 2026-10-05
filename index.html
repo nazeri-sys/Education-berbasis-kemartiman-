@@ -143,7 +143,7 @@
 
             <!-- Tombol Berlayar Utama -->
             <div class="w-full pt-2">
-                <button type="button" id="btn-start-game" class="touch-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-xl tracking-wider active:scale-95 transition-transform uppercase border-2 border-amber-300">
+                <button type="button" id="btn-start-game" onclick="startGame()" class="touch-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-xl tracking-wider active:scale-95 transition-transform uppercase border-2 border-amber-300">
                     🚀 BERLAYAR SEKARANG
                 </button>
             </div>
@@ -302,18 +302,6 @@
 
         /* ATTACH DIRECT LISTENERS ON DOM READY */
         window.onload = function() {
-            var startBtn = document.getElementById('btn-start-game');
-            if (startBtn) {
-                // Handle both touch tap and mouse click directly
-                startBtn.addEventListener('click', function(e) {
-                    startGame();
-                });
-                startBtn.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    startGame();
-                }, { passive: false });
-            }
-
             // Level selection bindings
             for (var i = 1; i <= 3; i++) {
                 (function(lvl) {
@@ -328,15 +316,13 @@
         /* SAFE AUDIO SYNTHESIZER (Web Audio API) */
         function playSound(type) {
             try {
+                var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
                 if (!audioCtx) {
-                    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContextClass) {
-                        audioCtx = new AudioContextClass();
-                    }
+                    audioCtx = new AudioContextClass();
                 }
-                if (!audioCtx) return;
                 if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
+                    audioCtx.resume().catch(function(){});
                 }
 
                 var osc = audioCtx.createOscillator();
@@ -394,29 +380,37 @@
 
         /* START GAME LOGIC */
         function startGame() {
-            if (isGameActive) return;
+            try {
+                if (isGameActive) return;
 
-            playSound('click');
+                try { playSound('click'); } catch(e){}
 
-            playerName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "Kapten Bahari";
+                var inputElem = document.getElementById('player-name-input');
+                playerName = (inputElem && inputElem.value.trim()) ? inputElem.value.trim() : "Kapten Bahari";
 
-            // Reset Game Variables
-            score = 0;
-            streak = 0;
-            maxStreak = 0;
-            timeLeft = 30;
-            totalAnswered = 0;
-            correctAnswers = 0;
-            isGameActive = true;
+                // Reset Game Variables
+                score = 0;
+                streak = 0;
+                maxStreak = 0;
+                timeLeft = 30;
+                totalAnswered = 0;
+                correctAnswers = 0;
+                isGameActive = true;
 
-            // UI Transitions
-            startScreen.classList.add('hidden');
-            reportScreen.classList.add('hidden');
-            gameScreen.classList.remove('hidden');
-            gameScreen.classList.add('flex');
+                // UI Transitions
+                var sScreen = document.getElementById('start-screen');
+                var gScreen = document.getElementById('game-screen');
+                var rScreen = document.getElementById('report-screen');
 
-            scoreDisplay.textContent = "0";
-            timerText.textContent = "30s";
-            timerBar.style.width = "100%";
-            shipProgressBar.style.width = "0%";
-            comboBadge.classList.add('hidden'
+                if (sScreen) sScreen.classList.add('hidden');
+                if (rScreen) rScreen.classList.add('hidden');
+                if (gScreen) {
+                    gScreen.classList.remove('hidden');
+                    gScreen.classList.add('flex');
+                }
+
+                if (scoreDisplay) scoreDisplay.textContent = "0";
+                if (timerText) timerText.textContent = "30s";
+                if (timerBar) timerBar.style.width = "100%";
+                if (shipProgressBar) shipProgressBar.style.width = "0%";
+    
