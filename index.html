@@ -9,7 +9,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts for playful nautical look -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -46,16 +46,6 @@
             100% { background-position-x: 1440px; }
         }
 
-        /* Pulse animation for active elements */
-        .pulse-slow {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .7; }
-        }
-
         /* Shake animation for wrong answers */
         .shake {
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
@@ -68,7 +58,7 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        /* Fixed Mobile-Safe Clean Card Style (No backdrop-filter touch bug) */
+        /* Fixed Mobile-Safe Clean Card Style */
         .glass-card {
             background: #0f172a;
             background: rgba(15, 23, 42, 0.96);
@@ -94,11 +84,8 @@
     <!-- MAIN GAME CONTAINER -->
     <main class="w-full max-w-lg glass-card rounded-3xl p-4 sm:p-6 shadow-2xl relative z-10 border border-cyan-500/30">
         
-        <!-- ======================================================== -->
         <!-- SCREEN 1: START & MENU SCREEN -->
-        <!-- ======================================================== -->
         <div id="start-screen" class="flex flex-col items-center text-center space-y-4">
-            <!-- Header Logo & Title -->
             <div class="relative mt-2">
                 <div class="text-5xl sm:text-6xl mb-2">🚢</div>
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-cyan-200 to-emerald-300 tracking-wide">
@@ -123,17 +110,17 @@
             <div class="w-full text-left space-y-2">
                 <label class="text-xs font-bold text-cyan-300 uppercase tracking-wider px-1">Pilih Wilayah Jelajah (Level):</label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button type="button" id="lvl-btn-1" class="touch-btn p-3 rounded-2xl bg-cyan-600 border-2 border-cyan-300 text-left transition-all ring-2 ring-cyan-400">
-                        <div class="text-base mb-0.5">🏝️️ Level 1</div>
+                    <button type="button" id="lvl-btn-1" onclick="selectLevel(1)" class="touch-btn p-3 rounded-2xl bg-cyan-600 border-2 border-cyan-300 text-left transition-all ring-2 ring-cyan-400">
+                        <div class="text-base mb-0.5">🏝 Level 1</div>
                         <div class="text-xs font-bold text-white">Dermaga</div>
                         <div class="text-[10px] text-cyan-200 mt-0.5">Tambah & Kurang</div>
                     </button>
-                    <button type="button" id="lvl-btn-2" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
+                    <button type="button" id="lvl-btn-2" onclick="selectLevel(2)" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
                         <div class="text-base mb-0.5">🌊 Level 2</div>
                         <div class="text-xs font-bold text-white">Laut Lepas</div>
                         <div class="text-[10px] text-slate-400 mt-0.5">Kali & Bagi</div>
                     </button>
-                    <button type="button" id="lvl-btn-3" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
+                    <button type="button" id="lvl-btn-3" onclick="selectLevel(3)" class="touch-btn p-3 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-left transition-all opacity-80">
                         <div class="text-base mb-0.5">⚡ Level 3</div>
                         <div class="text-xs font-bold text-white">Badai HOTS</div>
                         <div class="text-[10px] text-slate-400 mt-0.5">Soal Cerita Maritim</div>
@@ -143,15 +130,13 @@
 
             <!-- Tombol Berlayar Utama -->
             <div class="w-full pt-2">
-                <button type="button" id="btn-start-game" onclick="startGame()" class="touch-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-xl tracking-wider active:scale-95 transition-transform uppercase border-2 border-amber-300">
+                <button type="button" id="btn-start-game" onclick="startGame()" style="cursor: pointer; position: relative; z-index: 9999;" class="touch-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 text-slate-950 font-black py-4 px-6 rounded-2xl text-lg shadow-xl tracking-wider active:scale-95 transition-transform uppercase border-2 border-amber-300">
                     🚀 BERLAYAR SEKARANG
                 </button>
             </div>
         </div>
 
-        <!-- ======================================================== -->
         <!-- SCREEN 2: ACTIVE GAMEPLAY SCREEN -->
-        <!-- ======================================================== -->
         <div id="game-screen" class="hidden flex-col space-y-4">
             
             <!-- Top Bar: Stats -->
@@ -207,13 +192,10 @@
 
             <!-- Grid Pilihan Jawaban -->
             <div class="grid grid-cols-2 gap-3" id="options-container">
-                <!-- Option buttons populated by JS -->
             </div>
         </div>
 
-        <!-- ======================================================== -->
         <!-- SCREEN 3: EDU-ANALYTICS REPORT CARD -->
-        <!-- ======================================================== -->
         <div id="report-screen" class="hidden flex-col items-center text-center space-y-4">
             <div class="text-5xl">⚓</div>
             <div>
@@ -221,7 +203,6 @@
                 <p id="report-player-name" class="text-sm font-bold text-cyan-200">Kapten Bahari</p>
             </div>
 
-            <!-- Stat Grid -->
             <div class="grid grid-cols-2 gap-2 w-full">
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
                     <div class="text-[10px] text-slate-400 font-bold uppercase">Total Skor</div>
@@ -241,7 +222,6 @@
                 </div>
             </div>
 
-            <!-- Diagnostic Insight Box (Pedagogical Evaluation) -->
             <div class="w-full bg-cyan-950/50 p-4 rounded-2xl border border-cyan-500/30 text-left space-y-2">
                 <div class="flex items-center space-x-2 text-cyan-300 font-bold text-xs uppercase tracking-wider">
                     <span>💡</span>
@@ -252,7 +232,6 @@
                 </p>
             </div>
 
-            <!-- Action Buttons -->
             <div class="w-full flex space-x-2 pt-2">
                 <button type="button" onclick="restartGame()" class="touch-btn flex-1 bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black py-3 px-4 rounded-xl text-sm shadow-md uppercase">
                     🔄 Berlayar Lagi
@@ -262,16 +241,12 @@
 
     </main>
 
-    <!-- Footer Copyright for Competition -->
     <footer class="relative z-10 text-center mt-4 text-[10px] text-cyan-200/60">
         Math Ocean Rush • Karya Lomba Inovasi Pembelajaran (IMPACT 2026)
     </footer>
 
-    <!-- ======================================================== -->
-    <!-- JAVASCRIPT GAME LOGIC (ES5 COMPATIBLE FOR OLD BROWSERS) -->
-    <!-- ======================================================== -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        /* GAME STATE VARIABLES */
         var playerName = "Kapten Bahari";
         var selectedLevel = 1;
         var score = 0;
@@ -285,35 +260,6 @@
         var isGameActive = false;
         var audioCtx = null;
 
-        /* DOM ELEMENTS */
-        var startScreen = document.getElementById('start-screen');
-        var gameScreen = document.getElementById('game-screen');
-        var reportScreen = document.getElementById('report-screen');
-        var nameInput = document.getElementById('player-name-input');
-        var scoreDisplay = document.getElementById('score-display');
-        var timerText = document.getElementById('timer-text');
-        var timerBar = document.getElementById('timer-bar');
-        var comboBadge = document.getElementById('combo-badge');
-        var streakCount = document.getElementById('streak-count');
-        var shipProgressBar = document.getElementById('ship-progress-bar');
-        var questionText = document.getElementById('question-text');
-        var storyTag = document.getElementById('story-tag');
-        var optionsContainer = document.getElementById('options-container');
-
-        /* ATTACH DIRECT LISTENERS ON DOM READY */
-        window.onload = function() {
-            // Level selection bindings
-            for (var i = 1; i <= 3; i++) {
-                (function(lvl) {
-                    var lBtn = document.getElementById('lvl-btn-' + lvl);
-                    if (lBtn) {
-                        lBtn.onclick = function() { selectLevel(lvl); };
-                    }
-                })(i);
-            }
-        };
-
-        /* SAFE AUDIO SYNTHESIZER (Web Audio API) */
         function playSound(type) {
             try {
                 var AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -321,8 +267,8 @@
                 if (!audioCtx) {
                     audioCtx = new AudioContextClass();
                 }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().catch(function(){});
+                if (audioCtx.state === 'suspended' && typeof audioCtx.resume === 'function') {
+                    audioCtx.resume();
                 }
 
                 var osc = audioCtx.createOscillator();
@@ -357,14 +303,13 @@
                     osc.stop(now + 0.08);
                 }
             } catch (e) {
-                // Ignore audio errors on restricted devices
+                // Audio error ignored safely
             }
         }
 
-        /* LEVEL SELECTION */
         function selectLevel(lvl) {
             selectedLevel = lvl;
-            playSound('click');
+            try { playSound('click'); } catch(e){}
 
             for (var i = 1; i <= 3; i++) {
                 var btn = document.getElementById('lvl-btn-' + i);
@@ -378,17 +323,27 @@
             }
         }
 
-        /* START GAME LOGIC */
         function startGame() {
             try {
-                if (isGameActive) return;
+                // Direct Screen Switch
+                var sScreen = document.getElementById('start-screen');
+                var gScreen = document.getElementById('game-screen');
+                var rScreen = document.getElementById('report-screen');
+
+                if (sScreen) sScreen.style.display = 'none';
+                if (rScreen) rScreen.style.display = 'none';
+                if (gScreen) {
+                    gScreen.classList.remove('hidden');
+                    gScreen.style.display = 'flex';
+                }
 
                 try { playSound('click'); } catch(e){}
 
                 var inputElem = document.getElementById('player-name-input');
-                playerName = (inputElem && inputElem.value.trim()) ? inputElem.value.trim() : "Kapten Bahari";
+                if (inputElem && inputElem.value && inputElem.value.trim() !== '') {
+                    playerName = inputElem.value.trim();
+                }
 
-                // Reset Game Variables
                 score = 0;
                 streak = 0;
                 maxStreak = 0;
@@ -397,20 +352,72 @@
                 correctAnswers = 0;
                 isGameActive = true;
 
-                // UI Transitions
-                var sScreen = document.getElementById('start-screen');
-                var gScreen = document.getElementById('game-screen');
-                var rScreen = document.getElementById('report-screen');
-
-                if (sScreen) sScreen.classList.add('hidden');
-                if (rScreen) rScreen.classList.add('hidden');
-                if (gScreen) {
-                    gScreen.classList.remove('hidden');
-                    gScreen.classList.add('flex');
-                }
-
+                var scoreDisplay = document.getElementById('score-display');
                 if (scoreDisplay) scoreDisplay.textContent = "0";
+
+                var timerText = document.getElementById('timer-text');
                 if (timerText) timerText.textContent = "30s";
+
+                var timerBar = document.getElementById('timer-bar');
                 if (timerBar) timerBar.style.width = "100%";
+
+                var shipProgressBar = document.getElementById('ship-progress-bar');
                 if (shipProgressBar) shipProgressBar.style.width = "0%";
-    
+
+                var comboBadge = document.getElementById('combo-badge');
+                if (comboBadge) comboBadge.classList.add('hidden');
+
+                generateQuestion();
+
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(function() {
+                    if (!isGameActive) return;
+                    timeLeft--;
+                    
+                    var tText = document.getElementById('timer-text');
+                    if (tText) tText.textContent = timeLeft + "s";
+
+                    var tBar = document.getElementById('timer-bar');
+                    if (tBar) tBar.style.width = ((timeLeft / 30) * 100) + "%";
+
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+
+            } catch(err) {
+                alert("Perhatian: " + err.message);
+            }
+        }
+
+        function generateQuestion() {
+            var sTag = document.getElementById('story-tag');
+            if (sTag) sTag.classList.add('hidden');
+
+            var qText = document.getElementById('question-text');
+            var optContainer = document.getElementById('options-container');
+
+            var num1, num2, questionStr = "", ans = 0;
+
+            if (selectedLevel === 1) {
+                var isAdd = Math.random() > 0.4;
+                if (isAdd) {
+                    num1 = Math.floor(Math.random() * 25) + 5;
+                    num2 = Math.floor(Math.random() * 25) + 5;
+                    ans = num1 + num2;
+                    questionStr = num1 + " + " + num2 + " = ?";
+                } else {
+                    num1 = Math.floor(Math.random() * 40) + 10;
+                    num2 = Math.floor(Math.random() * num1) + 1;
+                    ans = num1 - num2;
+                    questionStr = num1 + " - " + num2 + " = ?";
+                }
+            } else if (selectedLevel === 2) {
+                var isMult = Math.random() > 0.5;
+                if (isMult) {
+                    num1 = Math.floor(Math.random() * 10) + 2;
+                    num2 = Math.floor(Math.random() * 10) + 2;
+                    ans = num1 * num2;
+                    questionStr = num1 + " × " + num2 + " = ?";
+                } else {
+                    num2 = Ma
